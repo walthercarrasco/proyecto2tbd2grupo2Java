@@ -10,6 +10,8 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.sql.ResultSet;
+
 import javax.swing.JOptionPane;
 
 
@@ -82,6 +84,7 @@ public class GUIConexion extends javax.swing.JFrame {
         TF_NombreDestino = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
         TF_PuertoDestino = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
         JPBaseOrigen = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         TF_IntanciaOrigen = new javax.swing.JTextField();
@@ -94,6 +97,7 @@ public class GUIConexion extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         TF_PasswordOrigen = new javax.swing.JTextField();
         BT_ProbarOrigen = new javax.swing.JButton();
+        jLabel11 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         B_Guardar = new javax.swing.JButton();
 
@@ -121,43 +125,51 @@ public class GUIConexion extends javax.swing.JFrame {
 
         jLabel10.setText("Puerto:");
 
+        jLabel12.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel12.setText("Base De Datos Destino");
+
         javax.swing.GroupLayout JPBaseDestinoLayout = new javax.swing.GroupLayout(JPBaseDestino);
         JPBaseDestino.setLayout(JPBaseDestinoLayout);
         JPBaseDestinoLayout.setHorizontalGroup(
             JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_IntanciaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                        .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(TF_NombreDestino)
-                            .addComponent(TF_PuertoDestino)))
-                    .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(TF_UsuarioDestino))
-                    .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_PasswordDestino)))
-                .addContainerGap(62, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JPBaseDestinoLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(BT_ProbarDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(161, 161, 161))
+                .addGap(25, 25, 25)
+                .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(JPBaseDestinoLayout.createSequentialGroup()
+                                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(TF_IntanciaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(JPBaseDestinoLayout.createSequentialGroup()
+                                .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(TF_NombreDestino)
+                                    .addComponent(TF_PuertoDestino)))
+                            .addGroup(JPBaseDestinoLayout.createSequentialGroup()
+                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(TF_UsuarioDestino))
+                            .addGroup(JPBaseDestinoLayout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(TF_PasswordDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 262, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JPBaseDestinoLayout.createSequentialGroup()
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(BT_ProbarDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(99, 99, 99))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         JPBaseDestinoLayout.setVerticalGroup(
             JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(JPBaseDestinoLayout.createSequentialGroup()
-                .addGap(14, 14, 14)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JPBaseDestinoLayout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(JPBaseDestinoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(TF_IntanciaDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -179,7 +191,7 @@ public class GUIConexion extends javax.swing.JFrame {
                     .addComponent(TF_PasswordDestino, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(BT_ProbarDestino)
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addGap(17, 17, 17))
         );
 
         JPBaseOrigen.setBackground(new java.awt.Color(204, 204, 255));
@@ -203,43 +215,54 @@ public class GUIConexion extends javax.swing.JFrame {
             }
         });
 
+        jLabel11.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
+        jLabel11.setText("Base De Datos Origen");
+
         javax.swing.GroupLayout JPBaseOrigenLayout = new javax.swing.GroupLayout(JPBaseOrigen);
         JPBaseOrigen.setLayout(JPBaseOrigenLayout);
         JPBaseOrigenLayout.setHorizontalGroup(
             JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(JPBaseOrigenLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(JPBaseOrigenLayout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_IntanciaOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(JPBaseOrigenLayout.createSequentialGroup()
+                        .addGap(28, 28, 28)
                         .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(TF_NombreOrigen)
-                            .addComponent(TF_PuertoOrigen)))
+                            .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(JPBaseOrigenLayout.createSequentialGroup()
+                                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(TF_IntanciaOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(JPBaseOrigenLayout.createSequentialGroup()
+                                    .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGap(18, 18, 18)
+                                    .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(TF_NombreOrigen)
+                                        .addComponent(TF_PuertoOrigen)))
+                                .addGroup(JPBaseOrigenLayout.createSequentialGroup()
+                                    .addComponent(jLabel5)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(TF_PasswordOrigen))
+                                .addGroup(JPBaseOrigenLayout.createSequentialGroup()
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(TF_UsuarioOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JPBaseOrigenLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(BT_ProbarOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(94, 94, 94))))
                     .addGroup(JPBaseOrigenLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TF_PasswordOrigen))
-                    .addGroup(JPBaseOrigenLayout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(TF_UsuarioOrigen)))
-                .addContainerGap(62, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, JPBaseOrigenLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(BT_ProbarOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(156, 156, 156))
+                        .addGap(38, 38, 38)
+                        .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 292, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(52, Short.MAX_VALUE))
         );
         JPBaseOrigenLayout.setVerticalGroup(
             JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(JPBaseOrigenLayout.createSequentialGroup()
-                .addGap(14, 14, 14)
+                .addGap(27, 27, 27)
+                .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(JPBaseOrigenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(TF_IntanciaOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -261,7 +284,7 @@ public class GUIConexion extends javax.swing.JFrame {
                     .addComponent(TF_PasswordOrigen))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(BT_ProbarOrigen)
-                .addContainerGap(36, Short.MAX_VALUE))
+                .addGap(23, 23, 23))
         );
 
         jPanel1.setBackground(new java.awt.Color(0, 255, 204));
@@ -269,7 +292,7 @@ public class GUIConexion extends javax.swing.JFrame {
         B_Guardar.setBackground(new java.awt.Color(255, 255, 0));
         B_Guardar.setForeground(new java.awt.Color(0, 0, 0));
         B_Guardar.setText("Guardar");
-        B_Guardar.setEnabled(false);
+        B_Guardar.setOpaque(false);
         B_Guardar.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 B_GuardarMousePressed(evt);
@@ -304,10 +327,11 @@ public class GUIConexion extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(JPBaseOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(JPBaseOrigen, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(JPBaseDestino, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(JPBaseDestino, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -391,6 +415,34 @@ public class GUIConexion extends javax.swing.JFrame {
             ois.writeObject(destino);
             ois.close();
             fis.close();
+            try{
+                ResultSet rs = GUIReplicacion.origen.conn.createStatement().executeQuery("SELECT * FROM link_destino");
+                if(rs.next()){
+                    GUIReplicacion.origen.conn.createStatement().executeQuery("DELETE FROM link_destino");
+                }
+                 GUIReplicacion.origen.conn.createStatement().executeQuery("INSERT INTO link_destino VALUES('Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;');");
+
+            }catch(Exception e){
+                GUIReplicacion.origen.conn.createStatement().executeQuery("CREATE TABLE link_destino (link varchar(1000))");
+                GUIReplicacion.origen.conn.createStatement().executeQuery("INSERT INTO link_destino VALUES('Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;');");
+            }
+            try{
+                ResultSet rs = GUIReplicacion.origen.conn.createStatement().executeQuery("SELECT * FROM bitacora;");
+                if(rs.next()){
+                    
+                }
+            }catch(Exception e){
+                String sql = "CREATE TABLE `bitacora` (\n" +
+                    "	`id_bitacora` INT(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "	`accion` VARCHAR(15) NOT NULL COLLATE 'latin1_swedish_ci',\n" +
+                    "	`tabla` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci',\n" +
+                    "	`atributos` VARCHAR(200) NOT NULL COLLATE 'latin1_swedish_ci',\n" +
+                    "	`olddatos` VARCHAR(200) NULL DEFAULT 'NULL' COLLATE 'latin1_swedish_ci',\n" +
+                    "	`newdatos` VARCHAR(200) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',\n" +
+                    "	`replicado` CHAR(1) NOT NULL COLLATE 'utf8mb3_general_ci',\n" +
+                    "	PRIMARY KEY (`id_bitacora`) USING BTREE\n" +");\n";
+                GUIReplicacion.origen.conn.createStatement().execute(sql);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -420,6 +472,8 @@ public class GUIConexion extends javax.swing.JFrame {
     private javax.swing.JTextField TF_UsuarioOrigen;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

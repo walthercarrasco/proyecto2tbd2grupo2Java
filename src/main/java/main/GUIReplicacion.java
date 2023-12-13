@@ -4,6 +4,12 @@
  */
 package main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import javax.swing.DefaultListModel;
@@ -18,7 +24,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
     
     public static Conexion origen = null;
     public static Conexion destino = null;
-
+    private hilo h;
     /**
      * Creates new form GUIReplicacion
      */
@@ -28,6 +34,8 @@ public class GUIReplicacion extends javax.swing.JFrame {
         verTablas();
         paqueamarre();
         CreateTriggers();
+        h = new hilo(origen, this.jl_ejec);
+        h.start();
     }
 
     private void paqueamarre(){
@@ -48,21 +56,35 @@ public class GUIReplicacion extends javax.swing.JFrame {
     }
 
     private void verTablas(){
+        ArrayList<String> cosos = new ArrayList<>();
+        try{
+            ResultSet rs = origen.conn.createStatement().executeQuery("SELECT tablas FROM tablas_replicar;");
+            while(rs.next()){
+                cosos.add(rs.getString(1));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         if(origen.puerto.equals("3306")){
             try{
                 ResultSet rs = origen.conn.createStatement().executeQuery("SHOW TABLES;");
                 //Tablas.removeAllItems();
                 DefaultListModel modellist = new DefaultListModel<>();
                 ArrayList<String> tablas = new ArrayList<>();
+                DefaultListModel modellist2 = new DefaultListModel<>();
                 while(rs.next()){
                     String NombreTabla = rs.getString(1);
-                    if(!NombreTabla.equals("bitacora")){
-                        tablas.add(NombreTabla);
+                    if(!NombreTabla.equals("temporal") && !NombreTabla.equals("bitacora") && !NombreTabla.equals("link_destino") && !NombreTabla.equals("tablas_replicar")){
+                        if(!cosos.contains(NombreTabla)){
+                            tablas.add(NombreTabla);
+                        }
                         //Tablas.addItem(NombreTabla);
                     }
                 }
+                modellist2.addAll(cosos);
                 modellist.addAll(tablas);
                 JL_SinReplicar.setModel(modellist);
+                JL_Replicando.setModel(modellist2);
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -105,13 +127,21 @@ public class GUIReplicacion extends javax.swing.JFrame {
         BT_EnviarReplicar = new javax.swing.JButton();
         BT_Guardar = new javax.swing.JButton();
         BT_Cancelar = new javax.swing.JButton();
+        jl_ejec = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
 
+        jPanel1.setBackground(new java.awt.Color(153, 255, 255));
+        jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel1.setForeground(new java.awt.Color(153, 255, 255));
+
         Refresh.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 RefreshMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                RefreshMouseReleased(evt);
             }
         });
 
@@ -168,6 +198,8 @@ public class GUIReplicacion extends javax.swing.JFrame {
             }
         });
 
+        jl_ejec.setText("Ultima Ejecucion:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -191,20 +223,27 @@ public class GUIReplicacion extends javax.swing.JFrame {
                     .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 137, Short.MAX_VALUE))
                 .addGap(46, 46, 46))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(133, 133, 133)
-                .addComponent(BT_Guardar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(101, 101, 101)
-                .addComponent(BT_Cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(143, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(133, 133, 133)
+                        .addComponent(BT_Guardar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(101, 101, 101)
+                        .addComponent(BT_Cancelar, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jl_ejec, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(139, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(46, 46, 46)
+                .addGap(18, 18, 18)
+                .addComponent(jl_ejec)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(Refresh, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -277,15 +316,53 @@ public class GUIReplicacion extends javax.swing.JFrame {
 
     private void BT_GuardarMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_BT_GuardarMousePressed
         DefaultListModel model = (DefaultListModel)JL_Replicando.getModel();
+        try{
+            origen.conn.createStatement().executeQuery("DROP TABLE IF EXISTS tablas_replicar;");
+            origen.conn.createStatement().executeQuery("CREATE TABLE tablas_replicar(tablas varchar(30),create_table varchar(300));");
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        if(model.isEmpty()){
+            try {
+                origen.conn.createStatement().executeQuery("DROP EVENT IF EXISTS replicador;");
+                File file = new File("./nose.bin");
+                file.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            JOptionPane.showMessageDialog(this, "Se Guardo Exitosamente");
+            return;
+        }        
         for(int i = 0; i < model.size(); i++){
             String tabla = (String)model.get(i);
             if(destino.puerto.equals("3306")){
-                ReplicarAMariaDB(tabla);
+                //ReplicarAMariaDB(tabla);
             }else if(destino.puerto.equals("1433")){
-                ReplicarASQLServer(tabla);
+                try{
+                    ResultSet rs = origen.conn.createStatement().executeQuery("SHOW CREATE TABLE "+ tabla+";");
+                    String strcrt = "";
+                    if(rs.next())
+                        strcrt = rs.getString(2);
+                    strcrt = strcrt.substring(0, strcrt.indexOf("ENGINE"));
+                    String si = strcrt.replace(tabla, "temporal");
+                    
+                    PreparedStatement ps = origen.conn.prepareStatement("INSERT INTO tablas_replicar (tablas, create_table) VALUES (?,?);");
+                    ps.setString(1, tabla);
+                    ps.setString(2, si);
+                    ps.execute();
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
             }
         }
+        createEvent();
+        JOptionPane.showMessageDialog(this, "Se Guardo Exitosamente");
     }//GEN-LAST:event_BT_GuardarMousePressed
+
+    private void RefreshMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_RefreshMouseReleased
+        // TODO add your handling code here:
+    }//GEN-LAST:event_RefreshMouseReleased
 
     private void ReplicarAMariaDB(String tableName){
         try{
@@ -332,8 +409,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
                     CreateTriggers();
                     //Replicar
                     ReplicandoMaria(tableName);
-                }
-                    
+                }        
             }
             JOptionPane.showMessageDialog(this, "Replicacion Exitosa");
         }catch(Exception e){
@@ -447,7 +523,6 @@ public class GUIReplicacion extends javax.swing.JFrame {
                 }
                     
             }
-            JOptionPane.showMessageDialog(this, "Replicacion Exitosa");
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -519,97 +594,11 @@ public class GUIReplicacion extends javax.swing.JFrame {
         try{
             Conexion[] conexiones = {origen, destino};
             for(Conexion c : conexiones){
-                if(c.puerto.equals("1433")){
-                    ResultSet rs = c.conn.createStatement().executeQuery(sqlvertablas);
-                    while(rs.next()){
-                        String tableName = rs.getString("table_name");
-                        if(!tableName.equals("bitacora")){
-                            String sqlatributos = "SELECT DISTINCT c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE,\n"
-                                +"  CASE\n"
-                                +"    WHEN ku.COLUMN_NAME IS NOT NULL THEN 'Primary Key'\n"
-                                +"    ELSE ''\n"
-                                +"  END AS CONSTRAINT_TYPE\n"
-                                +"FROM INFORMATION_SCHEMA.COLUMNS c\n"
-                                +"LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku ON c.COLUMN_NAME = ku.COLUMN_NAME\n"
-                                +"WHERE c.TABLE_NAME = '"+tableName+"'";
-                            String primary = "";
-                            ResultSet rsAtributos = c.conn.createStatement().executeQuery(sqlatributos);
-                            String nombreAtributos = "";
-                            String olddatos = "CONCAT(";
-                            String newdatos = "CONCAT(";
-                            ArrayList<String[]> atributoxtipo = new ArrayList<>();
-                            while(rsAtributos.next()){
-                                atributoxtipo.add(new String[]{rsAtributos.getString("COLUMN_NAME"),rsAtributos.getString("DATA_TYPE")});
-                                if(rsAtributos.getString("CONSTRAINT_TYPE").equals("Primary Key")){
-                                    primary = rsAtributos.getString("COLUMN_NAME");
-                                }
-                            }
-                            for(int i = 0; i < atributoxtipo.size(); i++){
-                                String[] atributo = atributoxtipo.get(i);
-                                String nombreAtributo = atributo[0];
-                                String tipoAtributo = atributo[1];
-                                nombreAtributos += nombreAtributo;
-                                if(tipoAtributo.equals("varchar")){
-                                    olddatos += "'''',d."+nombreAtributo+",'''";
-                                    newdatos += "'''',n."+nombreAtributo+",'''";
-                                }else{
-                                    olddatos += "d." + nombreAtributo+",'";
-                                    newdatos += "n."+ nombreAtributo+",'";
-                                }
-                                if(i != atributoxtipo.size()-1){
-                                    nombreAtributos += ",";
-                                    olddatos += ",',";
-                                    newdatos += ",',";
-                                }else{
-                                    olddatos += "'";
-                                    newdatos += "'";
-                                }
-                            }
-                            olddatos += ")";
-                            newdatos += ")";
-                            String trigger_delete = "CREATE TRIGGER " + tableName + "_after_delete ON " + tableName + " AFTER DELETE AS\n" +
-                                    "BEGIN\n" +
-                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n "
-                                    + "SELECT 'DELETE' AS accion,'"+tableName+"' AS tabla, '" + nombreAtributos + "' AS atributos," + olddatos + " AS olddatos, null AS newdatos, 0 AS replicado FROM DELETED d;"
-                                    + "END";
-
-                            String trigger_insert = "CREATE TRIGGER " + tableName + "_after_insert ON " + tableName + " AFTER INSERT AS\n" +
-                                    "BEGIN\n" +
-                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n "
-                                    + "SELECT 'INSERT INTO' AS accion,'"+tableName+"' AS tabla,'" + nombreAtributos + "' AS atributos,null AS olddatos," + newdatos + " AS newdatos, 0 AS replicado FROM INSERTED n;"
-                                    + "END";
-                            
-                            String trigger_update = "CREATE TRIGGER " + tableName + "_after_update ON " + tableName + " AFTER UPDATE AS\n" +
-                                    "BEGIN\n" +
-                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n "
-                                    + "SELECT 'UPDATE' AS accion,'"+tableName+"' AS tabla,'" + nombreAtributos + "' AS atributos," + olddatos + " AS olddatos," + newdatos + " AS newdatos, 0 AS replicado FROM DELETED d INNER JOIN INSERTED n ON d."+primary+"=n."+primary+";"
-                                    + "END";
-                            String sqltriggers = "SELECT name "
-                                    + "FROM sys.triggers "
-                                    + "WHERE parent_class_desc = 'OBJECT_OR_COLUMN' "
-                                    + "AND parent_id = OBJECT_ID('"+tableName+"')";
-                            ResultSet rstriggers = c.conn.createStatement().executeQuery(sqltriggers);
-                            ArrayList<String> triggers = new ArrayList<>();
-                            while(rstriggers.next()){
-                                triggers.add(rstriggers.getString(1));
-                            }
-                            if(!triggers.contains(tableName + "_after_delete")){
-                                c.conn.createStatement().execute(trigger_delete);
-                            }
-                            if(!triggers.contains(tableName + "_after_insert")){
-                                c.conn.createStatement().execute(trigger_insert);
-                            }
-                            if(!triggers.contains(tableName + "_after_update")){
-                                c.conn.createStatement().execute(trigger_update);
-                            }
-                        }
-                    }
-                }
                 if(c.puerto.equals("3306")){
                     ResultSet rs = c.conn.createStatement().executeQuery("SHOW TABLES;");
                     while(rs.next()){
                         String tableName = rs.getString(1);
-                        if(!tableName.equals("bitacora")){
+                        if(!tableName.equals("temporal") && !tableName.equals("bitacora") && !tableName.equals("link_destino") && !tableName.equals("tablas_replicar")){
                             String sqlatributos = "SELECT column_name,data_type "
                                     + "FROM information_schema.columns "
                                     + "WHERE table_schema = '"+c.basededato+"' "
@@ -619,6 +608,9 @@ public class GUIReplicacion extends javax.swing.JFrame {
                             String olddatos = "CONCAT(";
                             String newdatos = "CONCAT(";
                             
+                            String oldupdate = "CONCAT('";
+                            String newupdate = "CONCAT('";
+                            
                             while(rsAtributos.next()){
                                 String nombreAtributo = rsAtributos.getString(1);
                                 String tipoAtributo = rsAtributos.getString(2);
@@ -626,29 +618,40 @@ public class GUIReplicacion extends javax.swing.JFrame {
                                 if(tipoAtributo.equals("varchar")){
                                     olddatos += "'\\'',OLD."+nombreAtributo+",'\\'";
                                     newdatos += "'\\'',NEW."+nombreAtributo+",'\\'";
+                                    oldupdate += "'"+nombreAtributo+"=\\'',OLD."+nombreAtributo+",'\\'";
+                                    newupdate += "'"+nombreAtributo+"=\\'',NEW."+nombreAtributo+",'\\'";
                                 }else{
                                     olddatos += "OLD."+nombreAtributo+",'";
                                     newdatos += "NEW."+nombreAtributo+",'";
+                                    oldupdate += nombreAtributo+"=',OLD."+nombreAtributo+",'";
+                                    newupdate += nombreAtributo+"=',NEW."+nombreAtributo+",'";
                                 }
                                 if(!rsAtributos.isLast()){
                                     nombreAtributos += ",";
                                     olddatos += ",',";
                                     newdatos += ",',";
+                                    oldupdate += "',";
+                                    newupdate += ",',";
+                                    oldupdate += "' AND ',";                                    
                                 }else{
                                     olddatos += "'";
                                     newdatos += "'";
+                                    oldupdate += "'";
+                                    newupdate += "'";
                                 }
                             }
                             olddatos += ")";
                             newdatos += ")";
+                            oldupdate += ")";
+                            newupdate += ")";
+                            System.out.println(oldupdate);
+                            System.out.println(newupdate);
                             String trigger_delete = "CREATE TRIGGER " + tableName + "_after_delete AFTER DELETE ON " + tableName + " FOR EACH ROW BEGIN\n" +
-                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('DELETE','" + tableName + "','" + nombreAtributos + "'," + olddatos + ",null,false);\n" +
+                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('DELETE','" + tableName + "','" + nombreAtributos + "'," + oldupdate + ",null,false);\n" +
                                     "END";
-                            
-                            
-                            
+
                             String trigger_update = "CREATE TRIGGER " + tableName + "_after_update AFTER UPDATE ON " + tableName + " FOR EACH ROW BEGIN\n" +
-                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('UPDATE','" + tableName + "','" + nombreAtributos + "'," + olddatos + "," + newdatos + ",false);\n" +
+                                    "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('UPDATE','" + tableName + "','" + nombreAtributos + "'," + oldupdate + "," + newupdate + ",false);\n" +
                                     "END";
                             String trigger_insert = "CREATE TRIGGER " + tableName + "_after_insert AFTER INSERT ON " + tableName + " FOR EACH ROW BEGIN\n" +
                                     "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('INSERT INTO','" + tableName + "','" + nombreAtributos + "',null," + newdatos + ",false);\n" +
@@ -666,12 +669,13 @@ public class GUIReplicacion extends javax.swing.JFrame {
                             if(!triggers.contains(tableName + "_after_delete")){
                                 c.conn.createStatement().execute(trigger_delete);
                             }
+                            if(!triggers.contains(tableName + "_after_insert")){
+                                c.conn.createStatement().execute(trigger_insert);
+                            }                            
                             if(!triggers.contains(tableName + "_after_update")){
                                 c.conn.createStatement().execute(trigger_update);
                             }
-                            if(!triggers.contains(tableName + "_after_insert")){
-                                c.conn.createStatement().execute(trigger_insert);
-                            }
+
                         }
                     }
                 }
@@ -694,7 +698,85 @@ public class GUIReplicacion extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel jl_ejec;
     // End of variables declaration//GEN-END:variables
 
     private String sqlvertablas = "SELECT table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE'";
+    
+    private void createEvent(){
+        DefaultListModel model = (DefaultListModel)JL_Replicando.getModel();
+        String tablasCondicion = "(";
+        ArrayList<String> cosos = new ArrayList<>();
+        for(int i = 0; i < model.size(); i++){
+            String tabla = (String)model.get(i);
+            tablasCondicion += "tabla='"+tabla;
+            cosos.add(tabla);
+            if(i != model.size()-1){
+                tablasCondicion += "' OR ";
+            }else{
+                tablasCondicion += "')";
+            }
+        }
+        try{
+            File file = new File("./nose.bin");
+            if(file.exists()){
+                file.delete();
+            }
+            file.createNewFile();
+            FileOutputStream fis = new FileOutputStream(file);
+            ObjectOutputStream ois = new ObjectOutputStream(fis);
+            ois.writeObject(cosos);
+            ois.close();
+            fis.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        String query = 
+            "CREATE EVENT replicador\n" +
+            "ON SCHEDULE\n" +
+            "EVERY 5 SECOND\n" +
+            "ON COMPLETION NOT PRESERVE\n" +
+            "ENABLE\n" +
+            "COMMENT ''\n" +
+            "DO BEGIN\n"
+                + "DROP TABLE IF EXISTS temporal;\n" +
+            "SET @id := (SELECT id_bitacora FROM bitacora WHERE replicado=0 AND "+tablasCondicion+" LIMIT 1);\n" +
+            "SET @accion := (SELECT accion FROM bitacora WHERE id_bitacora=@id);\n" +
+            "SET @tabla := (SELECT tabla FROM bitacora WHERE id_bitacora=@id);\n"+
+            "SET @atributos := (SELECT atributos FROM bitacora WHERE id_bitacora=@id);\n" +
+            "SET @olddatos := (SELECT olddatos FROM bitacora WHERE id_bitacora=@id);\n" +
+            "SET @newdatos := (SELECT newdatos FROM bitacora WHERE id_bitacora=@id);\n" +
+            "SET @conn := (SELECT link FROM link_destino);\n" + 
+            "SET @crttable := (SELECT create_table FROM tablas_replicar WHERE tablas=@tabla);\n" +
+            "SET @create_table_query := CONCAT(@crttable,' ENGINE=CONNECT, TABLE_TYPE=ODBC, TABNAME=\\'', @tabla,'\\' CONNECTION=\\'', @conn,'\\'');\n" +
+            "PREPARE create_table_stmt FROM @create_table_query;\n" +
+            "EXECUTE create_table_stmt;\n" +
+            "DEALLOCATE PREPARE create_table_stmt;\n"+
+            "IF STRCMP(@accion,'INSERT INTO') = 0 THEN\n" +
+            "SET @querybase := CONCAT('INSERT INTO temporal (',@atributos,') VALUES (',@newdatos,');');\n" +
+            "ELSEIF STRCMP(@accion,'UPDATE') = 0 THEN\n" +
+            "SET @querybase := CONCAT('UPDATE temporal SET ',@newdatos,' WHERE ', @olddatos);\n" +
+            "ELSE\n" +
+            "SET @querybase := CONCAT('DELETE FROM temporal WHERE ',@olddatos);\n" +
+            "END IF;\n" +
+            "PREPARE coso_stmt FROM @querybase;\n" +
+            "EXECUTE coso_stmt;\n" +
+            "DEALLOCATE PREPARE coso_stmt;\n" +
+            "UPDATE bitacora SET replicado=1 WHERE id_bitacora=@id;\n" +
+            "DROP TABLE IF EXISTS temporal;\n" +
+            "END";
+        try{
+            origen.conn.createStatement().executeQuery("DROP EVENT replicador;");
+        }catch(Exception e){
+            //e.printStackTrace();
+        }        
+        try{
+            PreparedStatement ps = origen.conn.prepareStatement(query);
+            ps.execute();            
+            //origen.conn.createStatement().execute(query);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+    }
 }
