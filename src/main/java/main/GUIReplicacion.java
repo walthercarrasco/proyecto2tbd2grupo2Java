@@ -318,7 +318,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
         DefaultListModel model = (DefaultListModel)JL_Replicando.getModel();
         try{
             origen.conn.createStatement().executeQuery("DROP TABLE IF EXISTS tablas_replicar;");
-            origen.conn.createStatement().executeQuery("CREATE TABLE tablas_replicar(tablas varchar(30),create_table varchar(300));");
+            origen.conn.createStatement().executeQuery("CREATE TABLE tablas_replicar(tablas varchar(30),create_table varchar(2000));");
 
         }catch(Exception e){
             e.printStackTrace();
@@ -339,6 +339,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
             if(destino.puerto.equals("3306")){
                 //ReplicarAMariaDB(tabla);
             }else if(destino.puerto.equals("1433")){
+                ReplicarASQLServer(tabla);
                 try{
                     ResultSet rs = origen.conn.createStatement().executeQuery("SHOW CREATE TABLE "+ tabla+";");
                     String strcrt = "";
@@ -346,7 +347,8 @@ public class GUIReplicacion extends javax.swing.JFrame {
                         strcrt = rs.getString(2);
                     strcrt = strcrt.substring(0, strcrt.indexOf("ENGINE"));
                     String si = strcrt.replace(tabla, "temporal");
-                    
+                    if(si.contains("AUTO_INCREMENT"))
+                        si = si.replace("AUTO_INCREMENT", "");
                     PreparedStatement ps = origen.conn.prepareStatement("INSERT INTO tablas_replicar (tablas, create_table) VALUES (?,?);");
                     ps.setString(1, tabla);
                     ps.setString(2, si);
@@ -356,6 +358,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
                 }
             }
         }
+        
         createEvent();
         JOptionPane.showMessageDialog(this, "Se Guardo Exitosamente");
     }//GEN-LAST:event_BT_GuardarMousePressed
@@ -484,7 +487,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
             if(origen.puerto.equals("3306")){
                 ResultSet rs = destino.conn.createStatement().executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='"+tableName+"';");
                 if(rs.next()){
-                    ReplicandoSQL(tableName);
+                    //ReplicandoSQL(tableName);
                 }else{
                     String sqlatributos = "SELECT column_name, data_type, column_type, is_nullable, column_key, character_maximum_length "
                             + "FROM information_schema.columns "
@@ -517,9 +520,9 @@ public class GUIReplicacion extends javax.swing.JFrame {
                     sqlcreate += ")";
                     destino.conn.createStatement().execute(sqlcreate);
                     //Create Trigger
-                    CreateTriggers();
+                    //CreateTriggers();
                     //Replicar
-                    ReplicandoSQL(tableName);
+                    //ReplicandoSQL(tableName);
                 }
                     
             }
@@ -608,8 +611,8 @@ public class GUIReplicacion extends javax.swing.JFrame {
                             String olddatos = "CONCAT(";
                             String newdatos = "CONCAT(";
                             
-                            String oldupdate = "CONCAT('";
-                            String newupdate = "CONCAT('";
+                            String oldupdate = "CONCAT(";
+                            String newupdate = "CONCAT(";
                             
                             while(rsAtributos.next()){
                                 String nombreAtributo = rsAtributos.getString(1);
@@ -623,8 +626,8 @@ public class GUIReplicacion extends javax.swing.JFrame {
                                 }else{
                                     olddatos += "OLD."+nombreAtributo+",'";
                                     newdatos += "NEW."+nombreAtributo+",'";
-                                    oldupdate += nombreAtributo+"=',OLD."+nombreAtributo+",'";
-                                    newupdate += nombreAtributo+"=',NEW."+nombreAtributo+",'";
+                                    oldupdate += "'"+nombreAtributo+"=',OLD."+nombreAtributo+",'";
+                                    newupdate += "'"+nombreAtributo+"=',NEW."+nombreAtributo+",'";
                                 }
                                 if(!rsAtributos.isLast()){
                                     nombreAtributos += ",";
@@ -644,8 +647,6 @@ public class GUIReplicacion extends javax.swing.JFrame {
                             newdatos += ")";
                             oldupdate += ")";
                             newupdate += ")";
-                            System.out.println(oldupdate);
-                            System.out.println(newupdate);
                             String trigger_delete = "CREATE TRIGGER " + tableName + "_after_delete AFTER DELETE ON " + tableName + " FOR EACH ROW BEGIN\n" +
                                     "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('DELETE','" + tableName + "','" + nombreAtributos + "'," + oldupdate + ",null,false);\n" +
                                     "END";
@@ -656,7 +657,6 @@ public class GUIReplicacion extends javax.swing.JFrame {
                             String trigger_insert = "CREATE TRIGGER " + tableName + "_after_insert AFTER INSERT ON " + tableName + " FOR EACH ROW BEGIN\n" +
                                     "	INSERT INTO bitacora(accion,tabla,atributos,olddatos,newdatos,replicado)\n VALUES ('INSERT INTO','" + tableName + "','" + nombreAtributos + "',null," + newdatos + ",false);\n" +
                                     "END";
-                            
                             String sqltriggers = "SELECT TRIGGER_NAME " 
                                     + "FROM information_schema.triggers" 
                                     + " WHERE event_object_schema = '" + c.basededato + "' " 
@@ -734,7 +734,7 @@ public class GUIReplicacion extends javax.swing.JFrame {
         String query = 
             "CREATE EVENT replicador\n" +
             "ON SCHEDULE\n" +
-            "EVERY 5 SECOND\n" +
+            "EVERY 2 SECOND\n" +
             "ON COMPLETION NOT PRESERVE\n" +
             "ENABLE\n" +
             "COMMENT ''\n" +

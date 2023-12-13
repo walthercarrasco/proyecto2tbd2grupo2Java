@@ -417,11 +417,20 @@ public class GUIConexion extends javax.swing.JFrame {
             fis.close();
             try{
                 ResultSet rs = GUIReplicacion.origen.conn.createStatement().executeQuery("SELECT * FROM link_destino");
+                String coso = "Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;";
+                String coso2 = "";
                 if(rs.next()){
+                    coso2 = rs.getString(1);
                     GUIReplicacion.origen.conn.createStatement().executeQuery("DELETE FROM link_destino");
                 }
-                 GUIReplicacion.origen.conn.createStatement().executeQuery("INSERT INTO link_destino VALUES('Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;');");
-
+                GUIReplicacion.origen.conn.createStatement().executeQuery("INSERT INTO link_destino VALUES('Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;');");
+                if(!coso.equals(coso2)){
+                    try{
+                        GUIReplicacion.origen.conn.createStatement().execute("DELETE FROM tablas_replicar;");
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
             }catch(Exception e){
                 GUIReplicacion.origen.conn.createStatement().executeQuery("CREATE TABLE link_destino (link varchar(1000))");
                 GUIReplicacion.origen.conn.createStatement().executeQuery("INSERT INTO link_destino VALUES('Driver={SQL Server};Server="+destino.instancia+";Database="+destino.basededato+";Uid="+destino.usuario+";Pwd="+destino.password+";Encrypt=no;TrustServerCertificate=no;');");
